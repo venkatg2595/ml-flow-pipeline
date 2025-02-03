@@ -1,0 +1,62 @@
+name: ML Pipeline Automation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:  # Allows manual execution from GitHub UI
+
+jobs:
+  preprocess-train:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas scikit-learn joblib numpy streamlit
+
+      - name: Run Data Preprocessing
+        run: python data_load.py
+
+      - name: Train Model
+        run: python train.py --model-output-path model
+
+      - name: Save Model Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-model
+          path: model/
+
+  deploy-app:
+    needs: preprocess-train
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Trained Model
+        uses: actions/download-artifact@v4
+        with:
+          name: trained-model
+          path: model/
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas scikit-learn joblib numpy streamlit
+
+      - name: Run Streamlit App
+        run: streamlit run app.py
