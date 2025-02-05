@@ -51,9 +51,9 @@ df.fillna(df.mean(numeric_only=True), inplace=True)  # Fill missing values
 
 # Ensure column exists before mapping
 if 'sex' in df.columns:
-    df['sex'] = df['sex'].map({'male': 0, 'female': 1})
+    df['Sex'] = df['Sex'].map({'male': 0, 'female': 1})
 else:
-    print("⚠️ Column 'sex' not found. Skipping mapping.")
+    print("⚠️ Column 'Sex' not found. Skipping mapping.")
 
 # Ensure column exists before dropping
 if 'embarked' in df.columns:
