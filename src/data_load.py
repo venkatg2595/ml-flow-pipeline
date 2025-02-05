@@ -23,7 +23,7 @@ client = bigquery.Client(credentials=credentials)
 
 # Replace with your GCS bucket and file name
 BUCKET_NAME = "mlops-bucket12"
-FILE_NAME = "titanic_data.csv"
+FILE_NAME = "titanic.csv"
 GCS_PATH = f"gs://{BUCKET_NAME}/{FILE_NAME}"
 
 print(f"📂 Loading data from: {GCS_PATH}")
