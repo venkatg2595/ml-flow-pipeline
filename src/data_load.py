@@ -64,10 +64,10 @@ else:
 
 # Ensure target variable exists before splitting
 if 'survived' in df.columns:
-    X = df.drop('survived', axis=1)
-    y = df['survived']
+    X = df.drop('Survived', axis=1)
+    y = df['Survived']
 else:
-    print("❌ Column 'survived' not found. Check dataset!")
+    print("❌ Column 'Survived' not found. Check dataset!")
     exit(1)
 
 # Feature engineering (example)
