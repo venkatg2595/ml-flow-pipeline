@@ -8,7 +8,7 @@ import joblib
 client = bigquery.Client()
 
 # Query data from BigQuery
-query = "SELECT * FROM `your-project-id.mlops_dataset.titanic_data`"
+query = "SELECT * FROM `mlops-learning-449704.mlops_dataset.titanic_data`"
 df = client.query(query).to_dataframe()
 
 # Preprocessing
