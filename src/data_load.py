@@ -1,35 +1,63 @@
-from google.cloud import bigquery
+import os
+import json
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-import joblib
+from google.cloud import bigquery
+from google.oauth2 import service_account
 
-# Initialize BigQuery client
-client = bigquery.Client()
+# ----------------------------
+# ✅ Google Cloud Authentication
+# ----------------------------
 
-# Query data from BigQuery
-query = "SELECT * FROM `mlops-learning-449704.mlops_dataset.titanic_data`"
-df = client.query(query).to_dataframe()
+# Load credentials from environment variable
+gcp_credentials = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
-# Preprocessing
-df.fillna(df.mean(numeric_only=True), inplace=True)  
+if not gcp_credentials:
+    raise ValueError("❌ Google Cloud credentials not found. Make sure GOOGLE_APPLICATION_CREDENTIALS is set.")
+
+credentials = service_account.Credentials.from_service_account_file(gcp_credentials)
+client = bigquery.Client(credentials=credentials)
+
+# ----------------------------
+# ✅ Load Data from GCS
+# ----------------------------
+
+# Replace with your GCS bucket and file name
+BUCKET_NAME = "mlops-bucket12"
+FILE_NAME = "titanic_data.csv"
+GCS_PATH = f"gs://{BUCKET_NAME}/{FILE_NAME}"
+
+print(f"📂 Loading data from: {GCS_PATH}")
+
+# Read CSV file from GCS
+df = pd.read_csv(GCS_PATH)
+
+# ----------------------------
+# ✅ Preprocessing
+# ----------------------------
+
+df.fillna(df.mean(numeric_only=True), inplace=True)  # Fill missing values
 df['sex'] = df['sex'].map({'male': 0, 'female': 1})
+df.drop(['embarked'], axis=1, inplace=True)
 
-X = df.drop(columns=['survived'])
+X = df.drop('survived', axis=1)
 y = df['survived']
 
-# Feature engineering
+# Feature engineering (example)
 X['FamilySize'] = X['sibsp'] + X['parch'] + 1
 
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# ----------------------------
+# ✅ Save Processed Data to BigQuery
+# ----------------------------
 
-# Standardization
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+DATASET_ID = "mlops_dataset"  # Replace with your dataset
+TABLE_NAME = "titanic_data"
+TABLE_ID = f"{client.project}.{DATASET_ID}.{TABLE_NAME}"
 
-# Save preprocessor
-joblib.dump(scaler, "model/preprocessor.joblib")
+print(f"📡 Uploading to BigQuery table: {TABLE_ID}")
 
-print("Data preprocessing complete.")
+# Upload DataFrame to BigQuery
+job = client.load_table_from_dataframe(df, TABLE_ID)
+job.result()  # Wait for job to complete
+
+print("✅ Data successfully uploaded to BigQuery!")
+
