@@ -36,7 +36,7 @@ df = pd.read_csv(GCS_PATH)
 # ----------------------------
 
 df.fillna(df.mean(numeric_only=True), inplace=True)  # Fill missing values
-df['sex'] = df['sex'].map({'male': 0, 'female': 1})
+df['Sex'] = df['Sex'].map({'male': 0, 'female': 1})
 df.drop(['embarked'], axis=1, inplace=True)
 
 X = df.drop('survived', axis=1)
