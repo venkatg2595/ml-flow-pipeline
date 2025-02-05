@@ -63,7 +63,7 @@ else:
     print("⚠️ Column 'embarked' not found. Skipping drop operation.")
 
 # Ensure target variable exists before splitting
-if 'survived' in df.columns:
+if 'Survived' in df.columns:
     X = df.drop('Survived', axis=1)
     y = df['Survived']
 else:
