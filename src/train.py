@@ -22,7 +22,7 @@ def train_and_save_model(X_train, y_train, model_output_path):
     print(f"✅ Model saved locally: {model_filename}")
 
     # Upload model to Google Cloud Storage (GCS)
-    upload_to_gcs(model_filename, "mlops-bucket12", "models/model.joblib")
+    upload_to_gcs(model_filename, "mlops-bucket", "models/model.joblib")
 
 # ----------------------------
 # ✅ Upload Model to GCS
@@ -52,8 +52,9 @@ if __name__ == "__main__":
     if not os.path.exists(X_train_path) or not os.path.exists(y_train_path):
         raise FileNotFoundError("❌ Processed training data not found. Run `data_load.py` first.")
 
-    X_train = np.load(X_train_path)
-    y_train = np.load(y_train_path)
+    # Load the data with allow_pickle=True to handle object arrays
+    X_train = np.load(X_train_path, allow_pickle=True)
+    y_train = np.load(y_train_path, allow_pickle=True)
     print(f"✅ Training data loaded: {X_train.shape} samples.")
 
     # Train and save the model
