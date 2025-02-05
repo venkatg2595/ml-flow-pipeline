@@ -3,7 +3,6 @@ import numpy as np
 import joblib
 import argparse
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.preprocessing import LabelEncoder
 from google.cloud import storage
 
 # ----------------------------
@@ -37,27 +36,6 @@ def upload_to_gcs(local_file, bucket_name, gcs_path):
     print(f"✅ Model uploaded to GCS: gs://{bucket_name}/{gcs_path}")
 
 # ----------------------------
-# ✅ Preprocess Data
-# ----------------------------
-def preprocess_data(df):
-    # Handle categorical columns by encoding them
-    label_encoder = LabelEncoder()
-
-    # Encode 'Sex' column if exists
-    if 'Sex' in df.columns:
-        df['Sex'] = label_encoder.fit_transform(df['Sex'])
-        print("✅ 'Sex' column encoded.")
-
-    # Drop non-numeric columns (e.g., 'Name', 'Ticket', 'Cabin')
-    non_numeric_columns = ['Name', 'Ticket', 'Cabin', 'Embarked']  # Add more if needed
-    df.drop(columns=[col for col in non_numeric_columns if col in df.columns], inplace=True)
-    print(f"✅ Dropped non-numeric columns: {non_numeric_columns}")
-
-    # Ensure no missing values
-    df.fillna(df.mean(numeric_only=True), inplace=True)
-    return df
-
-# ----------------------------
 # ✅ Main Execution
 # ----------------------------
 if __name__ == "__main__":
@@ -78,9 +56,6 @@ if __name__ == "__main__":
     X_train = np.load(X_train_path, allow_pickle=True)
     y_train = np.load(y_train_path, allow_pickle=True)
     print(f"✅ Training data loaded: {X_train.shape} samples.")
-
-    # Preprocess the data (handle categorical columns, missing values, etc.)
-    X_train = preprocess_data(X_train)
 
     # Train and save the model
     train_and_save_model(X_train, y_train, args.model_output_path)
